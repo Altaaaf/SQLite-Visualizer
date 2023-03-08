@@ -15,7 +15,7 @@ After installing required packages, run main.py
 
 - [x] Supports all SQL commands (SELECT, UPDATE, DELETE, etc)
 - [x] Displays all rows found in table format
-- [x] Simple lightweight GUI using 
+- [x] Simple lightweight GUI using PyQt5
 
 
 ## Usage
