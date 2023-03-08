@@ -1,17 +1,38 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QMessageBox, QFileDialog, QTableWidgetItem, QDialog
-import sqlite3
 import atexit
+import sqlite3
 import sqlparse
+from PyQt5.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QTableWidget,
+    QTextEdit,
+    QPushButton,
+    QFileDialog,
+    QMessageBox,
+    QTableWidgetItem,
+    QDialog
+)
 
 
 class DatabaseTool(QMainWindow):
+    """
+    A GUI tool for executing SQL queries on a SQLite database.
+    """
+
     def __init__(self):
+        """
+        Initializes the GUI and sets up the UI elements.
+        """
         super().__init__()
 
         # Set window properties
         self.setWindowTitle("Database Tool")
         self.resize(400, 300)
 
+        # Initialize connection variable
         self.conn = None
 
         # Create UI elements
@@ -22,12 +43,12 @@ class DatabaseTool(QMainWindow):
         self.connect_btn = QPushButton("Connect")
         self.disconnect_btn = QPushButton("Disconnect")
 
-        # Set table properties
+        # Set initial table properties
         self.table.setColumnCount(0)
         self.table.setRowCount(0)
         self.table.horizontalHeader().setStretchLastSection(True)
 
-        # Create layout
+        # Create main widget and layout
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         main_layout = QVBoxLayout()
@@ -35,6 +56,7 @@ class DatabaseTool(QMainWindow):
         mid_layout = QHBoxLayout()
         bottom_layout = QHBoxLayout()
 
+        # Add UI elements to layouts
         top_layout.addWidget(self.query_box)
         mid_layout.addWidget(self.prettify_btn)
         mid_layout.addWidget(self.execute_btn)
@@ -46,15 +68,19 @@ class DatabaseTool(QMainWindow):
         main_layout.addLayout(bottom_layout)
         main_widget.setLayout(main_layout)
 
-        # Connect buttons
+        # Connect UI element actions to buttons
         self.execute_btn.clicked.connect(self.execute_query)
         self.prettify_btn.clicked.connect(self.prettify_query)
         self.connect_btn.clicked.connect(self.connect_database)
         self.disconnect_btn.clicked.connect(self.disconnect_database)
 
+        # Register a disconnect handler to ensure the database connection is closed on exit
         atexit.register(self.disconnect_database)
 
     def prettify_query(self):
+        """
+        Prettifies the SQL query entered in the query box.
+        """
         try:
             self.query_box.setText(
                 sqlparse.format(
@@ -65,7 +91,9 @@ class DatabaseTool(QMainWindow):
             QMessageBox.warning(self, "Error", str(err))
 
     def connect_database(self):
-        # Open file dialog to select database file
+        """
+        Opens a connection to the database using the connection string entered in the query box.
+        """
         try:
             file_dialog = QFileDialog()
             file_dialog.setNameFilter("Database Files (*.db *.sqlite)")
@@ -80,6 +108,9 @@ class DatabaseTool(QMainWindow):
             QMessageBox.warning(self, "Error", str(err))
 
     def disconnect_database(self):
+        """
+        Closes the connection to the database.
+        """
         if self.conn:
             self.conn.close()
             self.conn = None
@@ -87,6 +118,9 @@ class DatabaseTool(QMainWindow):
                 self, "Connection Status", "Disconnected from database")
 
     def execute_query(self):
+        """
+        Executes the SQL query entered in the query box and displays the results if any in the table.
+        """
         if not self.conn:
             QMessageBox.warning(self, "Error", "Not connected to a database")
             return
